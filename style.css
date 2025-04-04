@@ -1,0 +1,8 @@
+body {
+  font-family: sans-serif;
+  padding: 20px;
+}
+#status {
+  margin-top: 20px;
+  color: green;
+}
