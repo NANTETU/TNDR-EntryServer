@@ -69,7 +69,31 @@
             border-radius: 10px;
             border: 1px solid #f5c2c7;
         }
+
+        /* アイコンを左上に配置 */
+        .social-links {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .social-links a {
+            text-decoration: none;
+            color: #ccc;
+            font-size: 24px;
+            transition: color 0.3s;
+        }
+
+        .social-links a:hover {
+            color: white;
+        }
     </style>
+
+    <!-- FontAwesome（アイコン用） -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
     <script>
         function generateUUID() {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -98,6 +122,12 @@
     </script>
 </head>
 <body>
+    <!-- 左上のアイコン -->
+    <div class="social-links">
+        <a href="https://discord.gg/y92a2EgJYt" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+        <a href="https://www.youtube.com/@TaikoNijiiroDon/" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
+    </div>
+
     <div class="container">
         <h1>ライセンスキー生成</h1>
         <p id="licenseKey">まだライセンスキーは生成されていません。</p>
