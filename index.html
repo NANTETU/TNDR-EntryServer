@@ -17,6 +17,19 @@
             margin: 0;
         }
 
+        .logo {
+            width: 160px;
+            height: auto;
+            margin-bottom: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
         .footer {
             position: fixed;
             bottom: 20px;
@@ -180,6 +193,9 @@
         <a href="https://discord.gg/y92a2EgJYt" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
         <a href="https://www.youtube.com/@TaikoNijiiroDon/" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
     </div>
+
+    <!-- ロゴをここに表示 -->
+    <img src="logo.png" alt="ロゴ" class="logo">
 
     <div class="container">
         <h1>ライセンスキー生成</h1>
