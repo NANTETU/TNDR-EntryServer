@@ -2,44 +2,94 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ライセンスキー生成</title>
+    <style>
+        body {
+            background: #f4f4f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 24px;
+        }
+
+        #licenseKey {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #555;
+            word-break: break-all;
+        }
+
+        button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        button:hover:enabled {
+            background-color: #357ABD;
+        }
+    </style>
     <script>
         function generateUUID() {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
                 return v.toString(16).toUpperCase();
             });
         }
 
         function generateLicenseKey() {
-            // すでにキーが保存されてるか確認
             let existingKey = localStorage.getItem("licenseKey");
-            if (existingKey) {
-                document.getElementById("licenseKey").innerText = `あなたのライセンスキー: ${existingKey}`;
-                document.getElementById("generateBtn").disabled = true;
-                return;
-            }
+            if (existingKey) return;
 
-            // 新しいライセンスキーを生成
             let newKey = generateUUID();
             localStorage.setItem("licenseKey", newKey);
-            document.getElementById("licenseKey").innerText = `あなたのライセンスキー: ${newKey}`;
+            document.getElementById("licenseKey").innerText = `あなたのライセンスキー:\n${newKey}`;
             document.getElementById("generateBtn").disabled = true;
         }
 
-        window.onload = function() {
+        window.onload = () => {
             let existingKey = localStorage.getItem("licenseKey");
             if (existingKey) {
-                document.getElementById("licenseKey").innerText = `あなたのライセンスキー: ${existingKey}`;
+                document.getElementById("licenseKey").innerText = `あなたのライセンスキー:\n${existingKey}`;
                 document.getElementById("generateBtn").disabled = true;
             }
         };
     </script>
 </head>
 <body>
-    <h1>ライセンスキー生成</h1>
-    <p id="licenseKey">まだライセンスキーは生成されていません</p>
-    <button id="generateBtn" onclick="generateLicenseKey()">ライセンスキーを生成</button>
+    <div class="container">
+        <h1>ライセンスキー生成</h1>
+        <p id="licenseKey">まだライセンスキーは生成されていません。</p>
+        <button id="generateBtn" onclick="generateLicenseKey()">ライセンスキーを生成</button>
+    </div>
 </body>
 </html>
