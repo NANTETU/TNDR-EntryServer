@@ -35,7 +35,7 @@
             font-size: 18px;
             margin-bottom: 20px;
             color: #555;
-            word-break: break-all;
+            word-break: break-word;
         }
 
         button {
@@ -56,6 +56,18 @@
 
         button:hover:enabled {
             background-color: #357ABD;
+        }
+
+        .note {
+            margin-top: 30px;
+            color: #d32f2f;
+            font-size: 14px;
+            line-height: 1.6;
+            text-align: left;
+            background: #fff0f0;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #f5c2c7;
         }
     </style>
     <script>
@@ -90,6 +102,11 @@
         <h1>ライセンスキー生成</h1>
         <p id="licenseKey">まだライセンスキーは生成されていません。</p>
         <button id="generateBtn" onclick="generateLicenseKey()">ライセンスキーを生成</button>
+
+        <div class="note">
+            このライセンスキーは<strong>絶対に他人に教えないでください</strong>。<br>
+            一度でも他人に使われると再発行ができず、今後シミュレーターを利用できなくなります。
+        </div>
     </div>
 </body>
 </html>
