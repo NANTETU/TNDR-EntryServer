@@ -1,37 +1,35 @@
-<!DOCTYPE html>
+SignalR<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登録サイト</title>
+    <title>10桁の乱数生成</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 </head>
-
 <body>
-    <h1>アカウント登録</h1>
+    <h1>10桁の乱数生成</h1>
+    <button onclick="sendRandomNumber()">生成 & 送信</button>
+    <p>生成された乱数: <span id="randomNumber"></span></p>
 
-    <!-- Discordアカウント入力フォーム -->
-    <div id="discord-form">
-        <label for="discordAccount">Discord アカウント名:</label>
-        <input type="text" id="discordAccount" required>
-        <button onclick="nextStep()">次へ</button>
-    </div>
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/randomHub")
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
 
-    <!-- パスワード入力フォーム -->
-    <div id="password-form" style="display:none;">
-        <label for="password">パスワード:</label>
-        <input type="password" id="password" required>
-        <button onclick="submitForm()">送信</button>
-    </div>
+        connection.start().then(() => {
+            console.log("SignalR接続成功");
+        }).catch(err => console.error(err));
 
-    <div id="status" style="display:none;">お待ちください...</div>
-    <div id="success" style="display:none;">登録が完了しました</div>
+        function generateRandomNumber() {
+            return Math.floor(1000000000 + Math.random() * 9000000000).toString();
+        }
 
-    <!-- Firebase SDKのインポート -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="app.js"></script>
+        function sendRandomNumber() {
+            const randomNumber = generateRandomNumber();
+            document.getElementById("randomNumber").innerText = randomNumber;
+            connection.invoke("SendRandomNumber", randomNumber).catch(err => console.error(err));
+        }
+    </script>
 </body>
-
 </html>
