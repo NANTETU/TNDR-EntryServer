@@ -1,98 +1,64 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TaikoNijiiroDon 登録</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-    }
-    #message {
-      font-size: 20px;
-      margin-top: 20px;
-    }
-    input {
-      padding: 10px;
-      margin: 10px;
-      font-size: 16px;
-      width: 80%;
-      max-width: 300px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    #loading {
-      display: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登録フォーム</title>
 </head>
 <body>
+    <h2>ユーザー登録</h2>
+    <form id="registration-form">
+        <label for="discordUsername">Discordアカウント名：</label>
+        <input type="text" id="discordUsername" required><br><br>
 
-  <h1>TaikoNijiiroDon 登録</h1>
-  
-  <div id="inputSection">
-    <h3>Discord アカウント名を入力してください</h3>
-    <input type="text" id="discordUsername" placeholder="Discordのアカウント名" required>
-    <button onclick="startRegistration()">次へ</button>
-  </div>
+        <label for="password">パスワード：</label>
+        <input type="password" id="password" required><br><br>
 
-  <div id="loading">
-    <h3>お待ちください...</h3>
-  </div>
+        <button type="submit">送信</button>
+    </form>
 
-  <div id="passwordSection" style="display: none;">
-    <h3>パスワードを入力してください (8文字以上、英数字、記号を含む)</h3>
-    <input type="password" id="password" placeholder="パスワード" required>
-    <button onclick="submitRegistration()">送信</button>
-  </div>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script>
+        // Firebaseの設定（自分の設定に置き換えてください）
+        const firebaseConfig = {
+          apiKey: "YOUR_API_KEY",
+          authDomain: "YOUR_AUTH_DOMAIN",
+          projectId: "YOUR_PROJECT_ID",
+          storageBucket: "YOUR_STORAGE_BUCKET",
+          messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+          appId: "YOUR_APP_ID"
+        };
 
-  <div id="message"></div>
+        // Firebaseを初期化
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-  <script>
-    function startRegistration() {
-      const discordUsername = document.getElementById("discordUsername").value;
-      if (discordUsername === "") {
-        alert("Discordアカウント名を入力してください");
-        return;
-      }
+        // フォームの送信処理
+        document.getElementById('registration-form').addEventListener('submit', function(event) {
+            event.preventDefault();
 
-      // 表示を変更
-      document.getElementById("inputSection").style.display = "none";
-      document.getElementById("loading").style.display = "block";
-      
-      // ここでサーバーに接続する処理を追加する
-      setTimeout(() => {
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("passwordSection").style.display = "block";
-        // IPアドレス取得の処理をここに追加
-        // 仮でIPアドレスをセット
-        console.log("IPアドレス取得完了: 192.168.1.1");
-      }, 2000);  // 2秒待つ
-    }
+            const discordUsername = document.getElementById('discordUsername').value;
+            const password = document.getElementById('password').value;
 
-    function submitRegistration() {
-      const password = document.getElementById("password").value;
-      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+            // 入力チェック（パスワード8文字以上、英数字含む）
+            if (password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+                alert("パスワードは8文字以上で、英数字を含める必要があります");
+                return;
+            }
 
-      if (!passwordRegex.test(password)) {
-        alert("パスワードは8文字以上、英数字、記号を含む必要があります");
-        return;
-      }
-
-      // ここでサーバーに送信する処理を追加
-      const discordUsername = document.getElementById("discordUsername").value;
-      const ipAddress = "192.168.1.1";  // 仮のIPアドレス
-      console.log("送信される情報:", discordUsername, ipAddress, password);
-
-      // 成功メッセージ
-      document.getElementById("message").innerText = "登録が完了しました！";
-    }
-  </script>
-  
+            // Firestoreにデータを保存
+            db.collection('users').add({
+                discordUsername: discordUsername,
+                password: password
+            })
+            .then(() => {
+                alert("登録が完了しました！");
+            })
+            .catch(error => {
+                alert("登録エラー: " + error.message);
+            });
+        });
+    </script>
 </body>
 </html>
