@@ -4,101 +4,8 @@
     <meta charset="UTF-8">
     <title>ライセンスキー生成</title>
     <style>
-        body {
-            background: #f4f4f9;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            background: white;
-            padding: 30px 40px;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 100%;
-            max-width: 500px;
-        }
-
-        h1 {
-            margin-bottom: 10px;
-            color: #333;
-            font-size: 24px;
-        }
-
-        .description {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 20px;
-        }
-
-        #licenseKey {
-            font-size: 18px;
-            margin-bottom: 20px;
-            color: #555;
-            word-break: break-word;
-        }
-
-        button {
-            background-color: #4a90e2;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        button:hover:enabled {
-            background-color: #357ABD;
-        }
-
-        .note {
-            margin-top: 30px;
-            color: #d32f2f;
-            font-size: 14px;
-            line-height: 1.6;
-            text-align: left;
-            background: #fff0f0;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #f5c2c7;
-        }
-
-        /* アイコンを左上に配置 */
-        .social-links {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .social-links a {
-            text-decoration: none;
-            color: #ccc;
-            font-size: 24px;
-            transition: color 0.3s;
-        }
-
-        .social-links a:hover {
-            color: white;
-        }
+        /* 省略 */
     </style>
-
-    <!-- FontAwesome（アイコン用） -->
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
     <script>
         function generateUUID() {
@@ -115,14 +22,43 @@
             let newKey = generateUUID();
             localStorage.setItem("licenseKey", newKey);
             document.getElementById("licenseKey").innerText = `あなたのライセンスキー:\n${newKey}`;
-            document.getElementById("generateBtn").disabled = true;
+            document.getElementById("generateBtn").innerText = "コピー";
+            document.getElementById("generateBtn").onclick = () => copyToClipboard(newKey);
+            document.getElementById("generateBtn").disabled = false;
+
+            // Googleスプレッドシートにライセンスキーを送信
+            saveLicenseKeyToGoogleSheet(newKey);
+        }
+
+        function copyToClipboard(key) {
+            navigator.clipboard.writeText(key).then(() => {
+                alert("ライセンスキーがコピーされました！");
+            }, (err) => {
+                alert("コピーに失敗しました。");
+            });
+        }
+
+        function saveLicenseKeyToGoogleSheet(licenseKey) {
+            const scriptURL = "https://script.google.com/macros/s/AKfycbz2B6-jXMxbLNUY-QqydbLRF9CXkaId6qjjhTL5Lbs5RBjnqcHHkYrsh72FEpLdqIoeug/exec";  // Google Apps ScriptのURLに置き換えてください
+
+            const params = new URLSearchParams();
+            params.append('licenseKey', licenseKey);
+
+            fetch(scriptURL, {
+                method: 'POST',
+                body: params
+            }).then(response => response.text())
+              .then(result => console.log('Success:', result))
+              .catch(error => console.error('Error:', error));
         }
 
         window.onload = () => {
             let existingKey = localStorage.getItem("licenseKey");
             if (existingKey) {
                 document.getElementById("licenseKey").innerText = `あなたのライセンスキー:\n${existingKey}`;
-                document.getElementById("generateBtn").disabled = true;
+                document.getElementById("generateBtn").innerText = "コピー";
+                document.getElementById("generateBtn").onclick = () => copyToClipboard(existingKey);
+                document.getElementById("generateBtn").disabled = false;
             }
         };
     </script>
@@ -141,9 +77,8 @@
         <button id="generateBtn" onclick="generateLicenseKey()">ライセンスキーを生成</button>
 
         <div class="note">
-            ●このライセンスキーは<strong>絶対に他人に教えないでください</strong>。<br>
+            このライセンスキーは<strong>絶対に他人に教えないでください</strong>。<br>
             一度でも他人に使われると再発行ができず、今後シミュレーターを利用できなくなります。
-            ●これは二次配布対策のために行われます。ご了承下さい。
         </div>
     </div>
 </body>
