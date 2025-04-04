@@ -1,86 +1,79 @@
-<script src="https://openfpcdn.io/fingerprintjs/v3"></script>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>ライセンスキー生成</title>
-    <style>
-        /* 省略 */
-    </style>
-
-    <script>
-        function generateUUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16).toUpperCase();
-            });
-        }
-
-        function generateLicenseKey() {
-            let existingKey = localStorage.getItem("licenseKey");
-            if (existingKey) return;
-
-            let newKey = generateUUID();
-            localStorage.setItem("licenseKey", newKey);
-            document.getElementById("licenseKey").innerText = `あなたのライセンスキー:\n${newKey}`;
-            document.getElementById("generateBtn").innerText = "コピー";
-            document.getElementById("generateBtn").onclick = () => copyToClipboard(newKey);
-            document.getElementById("generateBtn").disabled = false;
-
-            // Googleスプレッドシートにライセンスキーを送信
-            saveLicenseKeyToGoogleSheet(newKey);
-        }
-
-        function copyToClipboard(key) {
-            navigator.clipboard.writeText(key).then(() => {
-                alert("ライセンスキーがコピーされました！");
-            }, (err) => {
-                alert("コピーに失敗しました。");
-            });
-        }
-
-        function saveLicenseKeyToGoogleSheet(licenseKey) {
-            const scriptURL = "https://script.google.com/macros/s/AKfycbzUW0vJmq-wxgzqjUreQAc8uVYmR62kve_19sPmmTw7pqVAHaVJrs5f-TpcsJp78zE5zQ/exec";  // Google Apps ScriptのURLに置き換えてください
-
-            const params = new URLSearchParams();
-            params.append('licenseKey', licenseKey);
-
-            fetch(scriptURL, {
-                method: 'POST',
-                body: params
-            }).then(response => response.text())
-              .then(result => console.log('Success:', result))
-              .catch(error => console.error('Error:', error));
-        }
-
-        window.onload = () => {
-            let existingKey = localStorage.getItem("licenseKey");
-            if (existingKey) {
-                document.getElementById("licenseKey").innerText = `あなたのライセンスキー:\n${existingKey}`;
-                document.getElementById("generateBtn").innerText = "コピー";
-                document.getElementById("generateBtn").onclick = () => copyToClipboard(existingKey);
-                document.getElementById("generateBtn").disabled = false;
-            }
-        };
-    </script>
+  <meta charset="UTF-8">
+  <title>ライセンスキー生成</title>
+  <script src="https://openfpcdn.io/fingerprintjs/v3"></script>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 30px; }
+    #licenseKey { margin-top: 20px; font-size: 20px; white-space: pre-wrap; }
+    button { font-size: 18px; padding: 10px 20px; margin: 10px; }
+  </style>
 </head>
 <body>
-    <!-- 左上のアイコン -->
-    <div class="social-links">
-        <a href="https://discord.gg/y92a2EgJYt" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
-        <a href="https://www.youtube.com/@TaikoNijiiroDon/" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
-    </div>
+  <h1>ライセンスキー生成ツール</h1>
+  <button id="generateBtn" onclick="generateLicenseKey()">ライセンスキー生成</button>
+  <button id="copyBtn" style="display:none;" onclick="copyLicenseKey()">コピー</button>
+  <p id="licenseKey"></p>
 
-    <div class="container">
-        <h1>ライセンスキー生成</h1>
-        <p class="description">TaikoNijiiroDonを使用するためのライセンスキーを生成します。</p>
-        <p id="licenseKey">まだライセンスキーは生成されていません。</p>
-        <button id="generateBtn" onclick="generateLicenseKey()">ライセンスキーを生成</button>
+  <script>
+    let fingerprint = null;
 
-        <div class="note">
-            このライセンスキーは<strong>絶対に他人に教えないでください</strong>。<br>
-            一度でも他人に使われると再発行ができず、今後シミュレーターを利用できなくなります。
-        </div>
-    </div>
+    // 指紋取得
+    FingerprintJS.load().then(fp => {
+      fp.get().then(result => {
+        fingerprint = result.visitorId;
+        console.log("visitorId:", fingerprint);
+      });
+    });
+
+    // ライセンスキー生成関数
+    function generateUUID() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    // ライセンスキー生成＆送信
+    function generateLicenseKey() {
+      if (!fingerprint) {
+        alert("識別中…もうちょい待ってな！");
+        return;
+      }
+
+      const licenseKey = generateUUID();
+
+      fetch("https://script.google.com/macros/s/AKfycbz2B6-jXMxbLNUY-QqydbLRF9CXkaId6qjjhTL5Lbs5RBjnqcHHkYrsh72FEpLdqIoeug/exec", {
+        method: "POST",
+        body: new URLSearchParams({
+          userId: fingerprint,
+          licenseKey: licenseKey
+        })
+      })
+      .then(res => res.text())
+      .then(res => {
+        if (res === "ALREADY_EXISTS") {
+          alert("もうライセンスキー作っとるで！");
+        } else {
+          document.getElementById("licenseKey").innerText = `あなたのライセンスキー:\n${res}`;
+          document.getElementById("generateBtn").style.display = "none";
+          document.getElementById("copyBtn").style.display = "inline-block";
+        }
+      })
+      .catch(err => {
+        alert("エラー発生したで！\n" + err);
+      });
+    }
+
+    // コピー機能
+    function copyLicenseKey() {
+      const text = document.getElementById("licenseKey").innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("コピーしたで！");
+      });
+    }
+  </script>
 </body>
 </html>
