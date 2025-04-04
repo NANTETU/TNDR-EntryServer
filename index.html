@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
     <style>
-        /* 少しスタイルを追加 */
         body {
             font-family: Arial, sans-serif;
             text-align: center;
@@ -29,7 +28,7 @@
     <div id="discord-form">
         <label for="discordAccount">Discordアカウント名:</label>
         <input type="text" id="discordAccount" placeholder="Discordアカウント名を入力" required>
-        <button onclick="nextStep()">次へ</button>
+        <button id="nextButton" onclick="nextStep()">次へ</button>
     </div>
 
     <!-- パスワード入力フォーム -->
@@ -46,12 +45,12 @@
     <script>
         // Firebaseの設定（自分の設定に置き換えてください）
         const firebaseConfig = {
-          apiKey: "AIzaSyAZs9FyqJ4wjSi-HcVC9SzLentqu8NXBwk",
-          authDomain: "tndr-entryserver.firebaseapp.com",
-          projectId: "tndr-entryserver",
-          storageBucket: "tndr-entryserver.firebasestorage.app",
-          messagingSenderId: "1008351258193",
-          appId: "1:1008351258193:web:55257ec8e18d22b80b3a70",
+  apiKey: "AIzaSyAZs9FyqJ4wjSi-HcVC9SzLentqu8NXBwk",
+  authDomain: "tndr-entryserver.firebaseapp.com",
+  projectId: "tndr-entryserver",
+  storageBucket: "tndr-entryserver.firebasestorage.app",
+  messagingSenderId: "1008351258193",
+  appId: "1:1008351258193:web:55257ec8e18d22b80b3a70",
         };
 
         // Firebase初期化
@@ -64,10 +63,13 @@
         // 次のステップ（パスワード入力フォームを表示）
         function nextStep() {
             discordAccount = document.getElementById('discordAccount').value;
-            if (!discordAccount) {
+            
+            // Discordアカウント名が空でないことを確認
+            if (!discordAccount.trim()) {
                 alert('Discordアカウント名を入力してください');
                 return;
             }
+
             document.getElementById('discord-form').style.display = 'none';
             document.getElementById('password-form').style.display = 'block';
         }
@@ -76,7 +78,7 @@
         async function submitForm() {
             password = document.getElementById('password').value;
             if (!password) {
-                alert('パスワードを設定してください');
+                alert('パスワードを入力してください');
                 return;
             }
 
