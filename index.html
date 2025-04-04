@@ -29,6 +29,36 @@
         .logo:hover {
             transform: scale(1.05);
         }
+        .logo {
+    width: 120px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.zoomed-logo {
+    max-width: 80vw;
+    max-height: 80vh;
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.3);
+}
+
 
         .footer {
             position: fixed;
@@ -135,6 +165,14 @@
             saveLicenseKeyToGoogleSheet(newKey);
         }
 
+        function openZoom() {
+    document.getElementById("overlay").style.display = "flex";
+}
+
+function closeZoom() {
+    document.getElementById("overlay").style.display = "none";
+}
+
         function updateLicenseKeyDisplay() {
             const keyDisplay = document.getElementById("licenseKey");
             if (isVisible) {
@@ -195,7 +233,13 @@
     </div>
 
     <!-- ロゴをここに表示 -->
-    <img src="logo.jpg" alt="ロゴ" class="logo">
+<img src="logo.jpg" alt="ロゴ" class="logo" onclick="openZoom()">
+
+
+    <div class="overlay" id="overlay" onclick="closeZoom()">
+    <img src="logo.jpg" class="zoomed-logo" id="zoomedLogo">
+</div>
+
 
     <div class="container">
         <h1>ライセンスキー生成</h1>
