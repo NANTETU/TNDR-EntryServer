@@ -17,16 +17,80 @@
             margin: 0;
         }
 
-        .container {
-            background: #fff;
-            padding: 2rem;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 500px;
-            width: 90%;
-            position: relative;
+        .logo {
+            width: 500px;
+            height: auto;
+            margin-bottom: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease-in-out;
         }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+        .logo {
+    width: 120px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+        .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.zoomed-logo {
+    max-width: 80vw;
+    max-height: 80vh;
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease;
+}
+
+.zoomed-logo:hover {
+    transform: scale(1.05);
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.zoomed-logo {
+    max-width: 80vw;
+    max-height: 80vh;
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.3);
+}
+
 
         .footer {
             position: fixed;
@@ -35,72 +99,77 @@
             transform: translateX(-50%);
             font-size: 0.9em;
             color: rgba(255, 255, 255, 0.7);
+            font-weight: 300;
             pointer-events: none;
         }
 
-        #logo {
-            width: 150px;
-            cursor: pointer;
-            transition: transform 0.3s, opacity 0.3s;
+        .container {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        h1 {
             margin-bottom: 1rem;
         }
 
-        #logo.enlarged {
-            transform: scale(2);
-            opacity: 0.9;
-        }
-
-        button {
-            margin: 0.5rem;
-            padding: 0.5rem 1rem;
-            border: none;
-            background: #4CAF50;
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
+        .description {
+            margin-bottom: 1.5rem;
             font-size: 1rem;
         }
 
-        button:hover {
-            background: #45a049;
-        }
-
         #licenseKey {
-            margin: 1rem 0;
             font-size: 1.2rem;
-            letter-spacing: 2px;
-            word-break: break-word;
-        }
-
-        .discord-link {
-            margin-top: 1rem;
-            display: inline-block;
-            color: #7289da;
-            text-decoration: none;
+            margin: 1rem 0;
+            word-break: break-all;
             font-weight: bold;
         }
 
-        .discord-link:hover {
-            text-decoration: underline;
+        button {
+            padding: 0.6rem 1.2rem;
+            margin: 0.3rem;
+            border: none;
+            border-radius: 8px;
+            background-color: #6c63ff;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #574b90;
+        }
+
+        .note {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #aa0000;
+        }
+
+        .social-links {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+        }
+
+        .social-links a {
+            color: #333;
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .hidden-text {
+            letter-spacing: 0.3rem;
         }
     </style>
-</head>
-<body>
-    <div class="container">
-        <img src="logo.jpg" id="logo" alt="ロゴ">
-        <h1>ライセンスキー生成</h1>
-        <p>生成されたライセンスキーはコピーできます。</p>
-        <div id="licenseKey">ライセンスキーはまだ生成されていません。</div>
-        <button id="generateBtn">生成</button>
-        <button id="toggleVisibilityBtn" style="display:none;">表示</button>
-        <a class="discord-link" href="https://discord.gg/xxxxxxx" target="_blank">公式Discordサーバー</a>
-    </div>
-    <div class="footer">© 2025 TNDR Dev Team</div>
 
     <script>
-        const endpoint = '【ここにあなたのスプレッドシートのURL】';
-
-        let realKey = '';
+        let realLicenseKey = "";
         let isVisible = false;
 
         function generateUUID() {
@@ -111,60 +180,125 @@
             });
         }
 
-        async function checkExistingLicense() {
-            const res = await fetch(endpoint + '?check=true');
-            const data = await res.json();
-            return data.exists;
+        function generateLicenseKey() {
+            const existingKey = localStorage.getItem("licenseKey");
+            if (existingKey) return;
+
+            const newKey = generateUUID();
+            localStorage.setItem("licenseKey", newKey);
+            realLicenseKey = newKey;
+            updateLicenseKeyDisplay();
+
+            document.getElementById("generateBtn").innerText = "コピー";
+            document.getElementById("generateBtn").onclick = () => copyToClipboard(realLicenseKey);
+            document.getElementById("generateBtn").disabled = false;
+            document.getElementById("toggleBtn").style.display = "inline-block";
+
+            saveLicenseKeyToGoogleSheet(newKey);
         }
 
-        async function saveLicenseKey(newKey) {
-            await fetch(endpoint, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ licenseKey: newKey })
-            });
+        function openZoom() {
+    document.getElementById("overlay").style.display = "flex";
+}
+
+function closeZoom() {
+    document.getElementById("overlay").style.display = "none";
+}
+
+        function updateLicenseKeyDisplay() {
+            const keyDisplay = document.getElementById("licenseKey");
+            if (isVisible) {
+                keyDisplay.innerText = `あなたのライセンスキー:\n${realLicenseKey}`;
+                document.getElementById("toggleBtn").innerText = "非表示";
+            } else {
+                const masked = "*".repeat(realLicenseKey.length);
+                keyDisplay.innerText = `あなたのライセンスキー:\n${masked}`;
+                document.getElementById("toggleBtn").innerText = "表示";
+            }
         }
 
-        document.getElementById('generateBtn').addEventListener('click', async () => {
-            if (realKey) {
-                copyToClipboard(realKey);
-                return;
-            }
-
-            const exists = await checkExistingLicense();
-            if (exists) {
-                alert("すでにライセンスキーが発行されています！");
-                return;
-            }
-
-            realKey = generateUUID();
-            saveLicenseKey(realKey);
-
-            document.getElementById('licenseKey').textContent = maskKey(realKey);
-            document.getElementById('generateBtn').textContent = 'コピー';
-            document.getElementById('toggleVisibilityBtn').style.display = 'inline-block';
-        });
-
-        document.getElementById('toggleVisibilityBtn').addEventListener('click', () => {
+        function toggleVisibility() {
             isVisible = !isVisible;
-            document.getElementById('licenseKey').textContent = isVisible ? realKey : maskKey(realKey);
-            document.getElementById('toggleVisibilityBtn').textContent = isVisible ? '非表示' : '表示';
-        });
-
-        function maskKey(key) {
-            return '*'.repeat(key.length);
+            updateLicenseKeyDisplay();
         }
+
+        function openZoom() {
+    const overlay = document.getElementById("overlay");
+    overlay.classList.add("active");
+}
+
+function closeZoom() {
+    const overlay = document.getElementById("overlay");
+    overlay.classList.remove("active");
+}
 
         function copyToClipboard(key) {
             navigator.clipboard.writeText(key).then(() => {
-                alert('ライセンスキーをコピーしました！');
+                alert("ライセンスキーがコピーされました！");
+            }).catch(() => {
+                alert("コピーに失敗しました。");
             });
         }
 
-        document.getElementById('logo').addEventListener('click', () => {
-            const logo = document.getElementById('logo');
-            logo.classList.toggle('enlarged');
-        });
+        function saveLicenseKeyToGoogleSheet(licenseKey) {
+            const scriptURL = "https://script.google.com/macros/s/AKfycbzUW0vJmq-wxgzqjUreQAc8uVYmR62kve_19sPmmTw7pqVAHaVJrs5f-TpcsJp78zE5zQ/exec";
+
+            const params = new URLSearchParams();
+            params.append('licenseKey', licenseKey);
+
+            fetch(scriptURL, {
+                method: 'POST',
+                body: params
+            }).then(response => response.text())
+              .then(result => console.log('Success:', result))
+              .catch(error => console.error('Error:', error));
+        }
+
+        window.onload = () => {
+            const existingKey = localStorage.getItem("licenseKey");
+            if (existingKey) {
+                realLicenseKey = existingKey;
+                updateLicenseKeyDisplay();
+
+                document.getElementById("generateBtn").innerText = "コピー";
+                document.getElementById("generateBtn").onclick = () => copyToClipboard(realLicenseKey);
+                document.getElementById("generateBtn").disabled = false;
+                document.getElementById("toggleBtn").style.display = "inline-block";
+            }
+        };
     </script>
+</head>
+<body>
+    <div class="social-links">
+        <a href="https://discord.gg/y92a2EgJYt" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+        <a href="https://www.youtube.com/@TaikoNijiiroDon/" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
+    </div>
+
+    <!-- ロゴをここに表示 -->
+<img src="logo.jpg" alt="ロゴ" class="logo" onclick="openZoom()">
+
+
+    <div class="overlay" id="overlay" onclick="closeZoom()">
+    <img src="logo.jpg" class="zoomed-logo" id="zoomedLogo">
+</div>
+
+
+    <div class="container">
+        <h1>ライセンスキー生成</h1>
+        <p class="description">TaikoNijiiroDonを使用するためのライセンスキーを生成します。</p>
+        <p id="licenseKey">まだライセンスキーは生成されていません。</p>
+
+        <button id="generateBtn" onclick="generateLicenseKey()">ライセンスキーを生成</button>
+        <button id="toggleBtn" onclick="toggleVisibility()" style="display: none;">表示</button>
+
+        <div class="note">
+            このライセンスキーは<strong>絶対に他人に教えないでください</strong>。<br>
+            一度でも他人に使われると再発行ができず、今後シミュレーターを利用できなくなります。
+        </div>
+    </div>
+
+    <div class="footer">
+        © 2025 TNDR Dev Team
+    </div>
 </body>
 </html>
